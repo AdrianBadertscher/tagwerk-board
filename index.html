@@ -1,89 +1,133 @@
 <!doctype html>
-<html lang="en">
+<html lang="de">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Kanban Board</title>
+  <title>Tagwerk Board</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%233f6ad8'%3E%3C/rect%3E%3Crect x='10' y='14' width='12' height='28' rx='3' fill='%23ffffff'/%3E%3Crect x='26' y='14' width='12' height='36' rx='3' fill='%23ffffff'/%3E%3Crect x='42' y='14' width='12' height='20' rx='3' fill='%23ffffff'/%3E%3C/svg%3E">
 </head>
 <body>
   <header>
-    <h1>Kanban Board</h1>
+    <h1 data-i18n="Kanban Board">Tagwerk Board</h1>
     <div class="toolbar">
-      <select id="board-select" aria-label="Current board"></select>
-      <button type="button" id="board-new" title="New board">+ New</button>
-      <button type="button" id="board-rename" title="Rename board">Rename</button>
-      <button type="button" id="board-delete" title="Delete board" class="danger">Delete</button>
+      <select id="board-select" data-i18n-aria="board-select" aria-label="Aktuelles Board"></select>
+      <button type="button" id="board-new" data-i18n="board-new" data-i18n-title="board-new-title" title="Neues Board">+ Neu</button>
+      <button type="button" id="board-rename" data-i18n="board-rename" data-i18n-title="board-rename-title" title="Board umbenennen">Umbenennen</button>
+      <button type="button" id="board-delete" class="danger" data-i18n="board-delete" data-i18n-title="board-delete-title" title="Board löschen">Löschen</button>
       <span class="sep"></span>
-      <button type="button" id="undo" title="Undo (Ctrl+Z)" aria-label="Undo">↶ Undo</button>
-      <button type="button" id="redo" title="Redo (Ctrl+Y)" aria-label="Redo">↷ Redo</button>
+      <button type="button" id="undo" data-i18n="undo" data-i18n-title="undo-title" data-i18n-aria="undo-aria" title="Zurück (Ctrl+Z)" aria-label="Zurück">↶ Zurück</button>
+      <button type="button" id="redo" data-i18n="redo" data-i18n-title="redo-title" data-i18n-aria="redo-aria" title="Wiederholen (Ctrl+Y)" aria-label="Wiederholen">↷ Wiederholen</button>
       <span class="sep"></span>
-      <button type="button" id="view-toggle" aria-pressed="false">📊 Stats</button>
+      <button type="button" id="view-toggle" aria-pressed="false" data-i18n="view-toggle">📊 Statistiken</button>
       <span class="sep"></span>
-      <button type="button" id="export" title="Download this board as JSON">⇩ Export</button>
-      <button type="button" id="import" title="Import a board from a JSON file">⇧ Import</button>
+      <button type="button" id="export" data-i18n="export" data-i18n-title="export-title" title="Alle Boards als JSON-Backup exportieren (Ctrl+S)">⇩ Export</button>
+      <button type="button" id="import" data-i18n="import" data-i18n-title="import-title" title="Ein Board aus einer JSON-Datei importieren">⇧ Import</button>
       <input type="file" id="import-file" accept=".json,application/json" hidden>
-      <button type="button" id="help" title="Keyboard shortcuts (?)" aria-label="Keyboard shortcuts">?</button>
+      <select id="lang-select" data-i18n-aria="lang-select-aria" aria-label="Sprache wählen"></select>
+      <button type="button" id="help" data-i18n="help" data-i18n-title="help-title" data-i18n-aria="help-aria" title="Tastaturkürzel (?)" aria-label="Tastaturkürzel">?</button>
     </div>
   </header>
+
   <div id="filters" class="filters">
-    <input id="search" type="search" placeholder="Search cards… (/)" aria-label="Search cards">
-    <select id="filter-tag" aria-label="Filter by tag"><option value="">All tags</option></select>
-    <select id="filter-prio" aria-label="Filter by priority">
-      <option value="">Any priority</option>
-      <option value="high">High</option>
-      <option value="medium">Medium</option>
-      <option value="low">Low</option>
-      <option value="none">None</option>
+    <input id="search" type="search" data-i18n-placeholder="search" data-i18n-aria="search-aria" placeholder="Suche nach Karten… (/)" aria-label="Karten durchsuchen">
+    <select id="filter-tag" data-i18n-aria="filter-tag-aria" aria-label="Nach Tag filtern">
+      <option value="" data-i18n="all-tags">Alle Tags</option>
     </select>
-    <button type="button" id="filter-clear" hidden>Clear</button>
+    <select id="filter-affect" data-i18n-aria="filter-affect-aria" aria-label="Nach Betrifft filtern">
+      <option value="" data-i18n="all-affects">Alle Betrifft</option>
+    </select>
+    <select id="filter-prio" data-i18n-aria="filter-prio-aria" aria-label="Nach Priorität filtern">
+      <option value="" data-i18n="all-priorities">Alle Prioritäten</option>
+      <option value="high" data-i18n="prio-high">Hoch</option>
+      <option value="medium" data-i18n="prio-medium">Mittel</option>
+      <option value="low" data-i18n="prio-low">Tief</option>
+      <option value="none" data-i18n="prio-none">Keine</option>
+    </select>
+    <select id="filter-due" data-i18n-aria="filter-due-aria" aria-label="Nach Fälligkeitsdatum filtern">
+      <option value="" data-i18n="all-dates">Alle Daten</option>
+      <option value="overdue" data-i18n="due-overdue">Überfällig</option>
+      <option value="today" data-i18n="due-today">Heute fällig</option>
+      <option value="week" data-i18n="due-week">Nächste 7 Tage</option>
+      <option value="none" data-i18n="due-none">Ohne Datum</option>
+    </select>
+    <button type="button" id="filter-clear" data-i18n="filter-clear" hidden>Löschen</button>
     <span id="filter-status" class="muted" aria-live="polite"></span>
+    <span id="selection-status" class="muted" aria-live="polite"></span>
+    <button type="button" id="selection-clear" data-i18n="selection-clear" hidden>Auswahl aufheben</button>
+    <select id="move-target" data-i18n-aria="move-target-aria" aria-label="Ziel-Board wählen" hidden></select>
+    <button type="button" id="move-to-board" data-i18n="move-to-board" data-i18n-title="move-to-board-title" title="Markierte Karten in ein anderes Board verschieben" hidden>Zu Board schieben</button>
   </div>
+
+  <svg id="ropes-back" aria-hidden="true"></svg>
+  <svg id="ropes-front" aria-hidden="true"></svg>
+
   <main id="board" class="board"></main>
-  <section id="stats" class="stats" hidden aria-label="Board statistics"></section>
+  <section id="stats" class="stats" hidden aria-label="Board-Statistiken"></section>
 
   <dialog id="detail" aria-labelledby="detail-heading">
     <form id="detail-form">
       <div class="detail-head">
-        <h2 id="detail-heading">Card details</h2>
+        <span id="detail-id" class="muted mono"></span>
+        <h2 id="detail-heading" data-i18n="detail-heading">Karten Details</h2>
         <span id="detail-col" class="muted"></span>
       </div>
-      <label>Title <input name="title" type="text" required maxlength="200"></label>
-      <label>Description <textarea name="description" rows="4"></textarea></label>
+      <label><span data-i18n="detail-title-label">Titel</span> <input name="title" type="text" required maxlength="200"></label>
+      <div id="md-preview" class="md"></div>
+      <label><span data-i18n="detail-description-label">Beschreibung</span> <textarea name="description" rows="4"></textarea></label>
       <div class="row">
-        <label>Priority
+        <label><span data-i18n="detail-priority-label">Priorität</span>
           <select name="priority">
-            <option value="none">None</option>
-            <option value="low">Low</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
+            <option value="none" data-i18n="prio-none">Keine</option>
+            <option value="low" data-i18n="prio-low">Tief</option>
+            <option value="medium" data-i18n="prio-medium">Mittel</option>
+            <option value="high" data-i18n="prio-high">Hoch</option>
           </select>
         </label>
-        <label>Due date <input name="due" type="date"></label>
+        <label><span data-i18n="detail-due-label">Bis</span> <input name="due" type="date"></label>
       </div>
-      <label>Tags <input name="tags" type="text" placeholder="e.g. bug, frontend"></label>
+      <label><span data-i18n="detail-links-label">Verknüpfte Karten (ID oder Titel tippen zum Suchen)</span>
+        <div id="link-picker">
+          <div class="lp-row">
+            <input id="link-search" type="text" data-i18n-placeholder="link-search-placeholder" placeholder="z.B. c6 oder Suchwort…" autocomplete="off">
+            <button type="button" id="link-confirm" data-i18n="link-confirm" data-i18n-title="link-confirm-title" title="Auswahl übernehmen und Liste schliessen">✓ Übernehmen</button>
+          </div>
+          <div id="link-list" class="lp-list" hidden></div>
+          <div id="link-chips" class="chips"></div>
+        </div>
+      </label>
+      <label><span data-i18n="detail-tags-label">Tags</span> <input name="tags" type="text" data-i18n-placeholder="tags-placeholder" placeholder="e.g. bug, frontend"></label>
+      <label><span data-i18n="detail-affects-label">Betrifft</span> <input name="affects" type="text" data-i18n-placeholder="affects-placeholder" placeholder="e.g. team, projekt-x"></label>
+      <details id="detail-history">
+        <summary data-i18n="detail-history-summary">Verlauf</summary>
+        <ul id="detail-log" class="log"></ul>
+      </details>
       <div class="detail-actions">
-        <button type="button" id="detail-delete" class="danger">Delete</button>
+        <button type="button" id="detail-delete" class="danger" data-i18n="delete">Löschen</button>
         <span class="spacer"></span>
-        <button type="button" id="detail-cancel">Cancel</button>
-        <button type="submit" class="primary">Save</button>
+        <button type="button" id="detail-cancel" data-i18n="detail-cancel">Abbrechen</button>
+        <button type="submit" class="primary" data-i18n="detail-save">Speichern</button>
       </div>
     </form>
   </dialog>
+
   <dialog id="shortcuts" aria-labelledby="shortcuts-heading">
-    <h2 id="shortcuts-heading">Keyboard shortcuts</h2>
+    <h2 id="shortcuts-heading" data-i18n="shortcuts-heading">Tastaturkürzel</h2>
     <dl class="keys">
-      <dt><kbd>/</kbd></dt><dd>Focus search</dd>
-      <dt><kbd>Esc</kbd></dt><dd>Clear search / close dialog</dd>
-      <dt><kbd>Ctrl</kbd>+<kbd>Z</kbd></dt><dd>Undo</dd>
-      <dt><kbd>Ctrl</kbd>+<kbd>Y</kbd> or <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd></dt><dd>Redo</dd>
-      <dt><kbd>N</kbd></dt><dd>New task (focus the add box)</dd>
-      <dt><kbd>S</kbd></dt><dd>Toggle stats view</dd>
-      <dt><kbd>?</kbd></dt><dd>Show this help</dd>
+      <dt><kbd>/</kbd></dt><dd><span data-i18n="shortcut-focus-search">Fokus Suche</span></dd>
+      <dt><kbd>Esc</kbd></dt><dd><span data-i18n="shortcut-esc-clear">Löscht die Suche / Dialog schliessen</span></dd>
+      <dt><kbd>Ctrl</kbd>+<kbd>Z</kbd></dt><dd><span data-i18n="shortcut-undo">Zurück</span></dd>
+      <dt><kbd>Ctrl</kbd>+<kbd>Y</kbd> / <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd></dt><dd><span data-i18n="shortcut-redo">Wiederholen</span></dd>
+      <dt><kbd>Ctrl</kbd>+<kbd>S</kbd></dt><dd><span data-i18n="shortcut-export">Board exportieren</span></dd>
+      <dt><kbd>N</kbd></dt><dd><span data-i18n="shortcut-new-task">Neuer Task (Fokus Hinzufügen)</span></dd>
+      <dt><kbd>S</kbd></dt><dd><span data-i18n="shortcut-stats">Zu Statistik Sicht</span></dd>
+      <dt><kbd>?</kbd></dt><dd><span data-i18n="shortcut-help">Zeigt die Hilfe</span></dd>
     </dl>
-    <p class="muted">Drag cards between columns, or use the ← → buttons (handy on touch screens). Click a card to edit it.</p>
-    <form method="dialog" class="detail-actions"><span class="spacer"></span><button class="primary">Close</button></form>
+    <p class="muted" data-i18n="shortcuts-note">Zieh die Karten zwischen den Spalten, oder benutze die ← → Buttons (nützlich auf Touch Screens). Klicke auf eine Karte zum Bearbeiten.</p>
+    <form method="dialog" class="detail-actions"><span class="spacer"></span><button class="primary" data-i18n="shortcuts-close">Schliessen</button></form>
   </dialog>
+
+  <script src="i18n.js"></script>
   <script src="board.js"></script>
   <script src="history.js"></script>
   <script src="script.js"></script>
