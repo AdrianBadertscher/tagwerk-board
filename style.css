@@ -307,3 +307,6 @@ header, .filters { position: relative; z-index: 3; }
 #md-toolbar, #md-toolbar button { user-select: none; }
 /* Rendered images fit inside the preview box. */
 .md img { max-width: 100%; height: auto; border-radius: 4px; }
+#md-preview {
+  overflow-y: auto;      /* long rendered text scrolls instead of growing */
+}

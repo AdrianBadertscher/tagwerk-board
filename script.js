@@ -908,36 +908,36 @@ function refreshPreview() {
   previewEl.innerHTML = descArea.value ? mdToHtml(descArea.value) : '';
 }
 
-// ---- Description render/edit mode ----
-// Default: the RENDERED markdown is shown and the raw textarea is hidden.
-// Clicking the preview swaps to the raw textarea (edit mode) until the
-// textarea loses focus, then the render view returns. Exceptions (clicks that
-// do NOT enter edit mode): task checkboxes toggle in place; hyperlinks open
-// their target; images are inert content.
-// The markdown toolbar (#md-toolbar) is visible in edit mode only.
-// NOTE: the description block in index.html is a plain DIV, not a <label>,
-// so no click forwarding fights with this logic.
-let descEditing = false;
-
-function setDescMode(edit) {
-  const mdTools = document.getElementById('md-tools');   // oben bei den Element-Deklarationen
+// Switch the description block between render and edit mode.
+// focusTextarea: grab focus into the textarea (USER-initiated switches only,
+// e.g. clicking the preview). Programmatic switches (dialog open, blur
+// restore) must NEVER steal focus — otherwise they fight with title.focus()
+// and every other field in the dialog (focus war on empty descriptions).
+function setDescMode(edit, focusTextarea = true) {
+  const mdTools = document.getElementById('md-tools');
   if (mdCopy) mdCopy.hidden = edit;   // visible in render mode only
   // An empty description renders nothing — keep the textarea usable instead.
   if (!edit && !descArea.value.trim()) edit = true;
   descEditing = edit;
+  descEditing = edit;
+  // Height parity between edit and render views: adopt the textarea's CURRENT
+  // height (including manual resizes) as the preview's max-height BEFORE the
+  // textarea is hidden, so switching modes never moves the layout.
+  if (!edit) previewEl.style.maxHeight = descArea.getBoundingClientRect().height + 'px';
   descArea.hidden = !edit;
   previewEl.hidden = edit;
-  // in setDescMode():
   if (mdToolbar) {
     mdToolbar.hidden = false;                            // container always participates in layout
     if (mdTools) mdTools.classList.toggle('ghosted', !edit);  // format buttons: edit mode only
     if (mdCopy) mdCopy.hidden = edit;                    // copy button: render mode only
   }
   if (edit) {
-    descArea.focus();
-    // Caret at the end: clicking the preview means "append/edit the text".
-    const len = descArea.value.length;
-    descArea.setSelectionRange(len, len);
+    if (focusTextarea) {
+      descArea.focus();
+      // Caret at the end: clicking the preview means "append/edit the text".
+      const len = descArea.value.length;
+      descArea.setSelectionRange(len, len);
+    }
   } else {
     refreshPreview();
   }
@@ -969,7 +969,7 @@ descArea.addEventListener('blur', () => {
     const active = document.activeElement;
     if (active === descArea) return;                              // focus came back
     if (mdToolbar && mdToolbar.contains(active)) return;          // tabbed into the toolbar
-    setDescMode(false);
+    setDescMode(false, false);                                    // restore render view, NO focus steal
   }, 0);
 });
 
@@ -1114,7 +1114,7 @@ function openDetail(id) {
   document.getElementById('link-list').hidden = true;
   renderHistory(card);                          // populate the history section
   dialog.showModal();
-  setDescMode(false);                           // render view first (falls back to edit when empty)
+  setDescMode(false, false);                    // render view first, NO focus steal
   form.elements.title.focus();
 }
 
