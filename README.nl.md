@@ -12,6 +12,11 @@ Jouw persoonlijke Kanban-bord. Jouw gegevens blijven op jouw apparaat. Punt.
 
 Tagwerk is een privé, local-first Kanban-bord, volledig gebouwd met HTML, JavaScript en CSS — geen server, geen accounts, geen cloud, geen build-stap. Open de bestanden, en het werkt. Je taken verlaten nooit je machine — en daarom is Tagwerk niet bedoeld voor teams. Het is jouw bord, voor jouw werk.
 
+## Met dank aan
+
+- Tagwerk maakt gebruik van het lettertype **[JetBrains Mono](https://www.jetbrains.com/lp/mono/)** van JetBrains (SIL Open Font License).
+- Dit project is een fork van [Lewis-P-T/kanban-board](https://github.com/Lewis-P-T/kanban-board) — hartelijk bedankt voor deze uitstekende basis!
+
 ## Waarom Tagwerk?
 
 De meeste Kanban-tools willen je gegevens. Ze synchroniseren ze, analyseren ze, hosten ze en verdienen er geld mee. Tagwerk neemt de tegenovergestelde houding aan: er is niets te onderscheppen en niets te lekken, omdat alles lokaal in je browser draait en daar wordt opgeslagen. Privé door ontwerp, niet door beleid.

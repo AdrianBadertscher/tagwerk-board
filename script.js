@@ -126,7 +126,7 @@ function render() {
   renderFilterOptions();
   // Drop selections pointing at cards that no longer exist on this board.
   selected = new Set([...selected].filter(sid => state.cards[sid]));
-  if (view === 'stats') { renderStats(); return; }
+  if (view === 'stats') { renderStats(); drawRopes(); return; }
   const today = Board.isoDate(new Date());
   const DAY = 86400000;
   let filterDates = null;
@@ -703,7 +703,7 @@ function tile(label, value, warn) {
 function renderStats() {
   const s = Board.boardStats(state);
   const today = Board.isoDate(new Date());
-  const todayCount = Object.values(state.cards).filter(c => c.due === today).length;
+  const todayCount = Object.values(state.cards).filter(c => c.due === today).count ? 0 : Object.values(state.cards).filter(c => c.due === today).length;
   statsEl.innerHTML = '';
   statsEl.setAttribute('aria-label', t('stats-aria'));
 
@@ -868,13 +868,207 @@ window.addEventListener('scroll', drawRopes, true);   // capture: catches inner 
 const dialog = document.getElementById('detail');
 const form = document.getElementById('detail-form');
 const previewEl = document.getElementById('md-preview');
+const descArea = form.elements.description;
 const logListEl = document.getElementById('detail-log');
+const mdToolbar = document.getElementById('md-toolbar');
+const mdTools = document.getElementById('md-tools');
+const mdCopy = document.getElementById('md-copy')
 let editingId = null;
+
+// Copy the RENDERED description to the clipboard.
+// PRIMARY: a native selection copy — byte-for-byte what Ctrl+C does, and the
+// only path that reliably keeps <img> (and <a>) intact. Chromium sanitizes
+// HTML written through navigator.clipboard.write(); the native copy pipeline
+// does not. execCommand('copy') is deprecated but remains the proven fallback.
+document.getElementById('md-copy').addEventListener('click', async () => {
+  if (previewEl.innerHTML.trim()) {
+    const sel = window.getSelection();
+    const range = document.createRange();
+    range.selectNodeContents(previewEl);
+    sel.removeAllRanges();
+    sel.addRange(range);
+    const ok = document.execCommand('copy');
+    sel.removeAllRanges();
+    if (ok) return;
+  }
+  // Fallback 1: async Clipboard API (rich text, possibly minus images).
+  try {
+    await navigator.clipboard.write([new ClipboardItem({
+      'text/html':  new Blob([previewEl.innerHTML], { type: 'text/html' }),
+      'text/plain': new Blob([descArea.value], { type: 'text/plain' }),
+    })]);
+  } catch (e) {
+    // Fallback 2: older browser or denied permission — plain text only.
+    try { await navigator.clipboard.writeText(descArea.value); } catch (e2) { /* clipboard unavailable */ }
+  }
+});
 
 // Render the markdown preview from the current textarea content.
 function refreshPreview() {
-  previewEl.innerHTML = form.elements.description.value ? mdToHtml(form.elements.description.value) : '';
+  previewEl.innerHTML = descArea.value ? mdToHtml(descArea.value) : '';
 }
+
+// ---- Description render/edit mode ----
+// Default: the RENDERED markdown is shown and the raw textarea is hidden.
+// Clicking the preview swaps to the raw textarea (edit mode) until the
+// textarea loses focus, then the render view returns. Exceptions (clicks that
+// do NOT enter edit mode): task checkboxes toggle in place; hyperlinks open
+// their target; images are inert content.
+// The markdown toolbar (#md-toolbar) is visible in edit mode only.
+// NOTE: the description block in index.html is a plain DIV, not a <label>,
+// so no click forwarding fights with this logic.
+let descEditing = false;
+
+function setDescMode(edit) {
+  const mdTools = document.getElementById('md-tools');   // oben bei den Element-Deklarationen
+  if (mdCopy) mdCopy.hidden = edit;   // visible in render mode only
+  // An empty description renders nothing — keep the textarea usable instead.
+  if (!edit && !descArea.value.trim()) edit = true;
+  descEditing = edit;
+  descArea.hidden = !edit;
+  previewEl.hidden = edit;
+  // in setDescMode():
+  if (mdToolbar) {
+    mdToolbar.hidden = false;                            // container always participates in layout
+    if (mdTools) mdTools.classList.toggle('ghosted', !edit);  // format buttons: edit mode only
+    if (mdCopy) mdCopy.hidden = edit;                    // copy button: render mode only
+  }
+  if (edit) {
+    descArea.focus();
+    // Caret at the end: clicking the preview means "append/edit the text".
+    const len = descArea.value.length;
+    descArea.setSelectionRange(len, len);
+  } else {
+    refreshPreview();
+  }
+}
+
+// Copy the RENDERED description as rich text (text/html) plus the raw
+// markdown as text/plain fallback. Clipboard API needs a click-triggered
+// secure context; file:// counts as one in Chromium browsers.
+document.getElementById('md-copy').addEventListener('click', async () => {
+  const html = previewEl.innerHTML;               // freshly rendered in render mode
+  try {
+    await navigator.clipboard.write([new ClipboardItem({
+      'text/html':  new Blob([html], { type: 'text/html' }),
+      'text/plain': new Blob([descArea.value], { type: 'text/plain' }),
+    })]);
+  } catch (e) {
+    // Older browser or denied permission: degrade to plain text instead of failing silently.
+    try { await navigator.clipboard.writeText(descArea.value); } catch (e2) { /* clipboard unavailable */ }
+  }
+});
+
+// Leaving the textarea (tab away, click into another field, Save, …) restores
+// the render view. Checked asynchronously: if the focus merely moved (e.g. into
+// the toolbar via Tab) or came straight back, the edit mode must survive.
+descArea.addEventListener('blur', () => {
+  if (!descEditing) return;
+  setTimeout(() => {
+    if (!descEditing) return;
+    const active = document.activeElement;
+    if (active === descArea) return;                              // focus came back
+    if (mdToolbar && mdToolbar.contains(active)) return;          // tabbed into the toolbar
+    setDescMode(false);
+  }, 0);
+});
+
+// Live preview while typing (the textarea is the source of truth either way).
+descArea.addEventListener('input', refreshPreview);
+
+// ---- Markdown toolbar: formatting buttons above the description textarea ----
+// Actions operate on the textarea's current selection. All button clicks go
+// through mousedown+preventDefault so the textarea never loses focus and the
+// selection survives. The textarea stays the single source of truth: the
+// toolbar only rewrites `descArea.value` and restores a sensible selection.
+
+// Selection index helper: focus FIRST, then read [start, end] — an unfocused
+// textarea may not report a valid selection.
+function mdSel() {
+  descArea.focus();
+  return [descArea.selectionStart, descArea.selectionEnd];
+}
+
+// Wrap the selection (or insert bare markup) with pre/post. Pressing the same
+// button again on wrapped text removes the markup. Ends with a COLLAPSED
+// caret right at the edit location — never a selection, so typing cannot
+// overwrite the formatted text, and the caret never jumps to the far end.
+function mdWrap(pre, post) {
+  const [s, e] = mdSel();
+  const val = descArea.value;
+  const sel = val.slice(s, e);
+  const before = val.slice(0, s), after = val.slice(e);
+  let caret;
+  if (sel && before.endsWith(pre) && after.startsWith(post)) {
+    // Toggle off: strip the surrounding markup.
+    descArea.value = before.slice(0, -pre.length) + sel + after.slice(post.length);
+    caret = s - pre.length + sel.length;          // caret right after the un-wrapped text
+  } else if (sel) {
+    descArea.value = before + pre + sel + post + after;
+    caret = s + pre.length + sel.length + post.length;  // caret after the closing markup
+  } else {
+    // No selection: insert bare markers, caret between them.
+    descArea.value = before + pre + post + after;
+    caret = s + pre.length;
+  }
+  descArea.setSelectionRange(caret, caret);
+  refreshPreview();
+}
+
+// Line-prefix actions (h1/h2/h3, bullet list, task list): applied to every
+// line touched by the selection. A line that already carries the SAME prefix
+// loses it; any other prefix is REPLACED (e.g. task -> bullet).
+const MD_PREFIXES = { h1: '# ', h2: '## ', h3: '### ', ul: '- ', task: '- [ ] ' };
+const MD_PREFIX_RE = /^(#{1,3}\s+|[-*]\s+\[(?: |x|X)\]\s+|[-*]\s+)?/;
+
+function mdPrefix(kind) {
+  const [s, e] = mdSel();
+  const val = descArea.value;
+  const ls = val.lastIndexOf('\n', s - 1) + 1;       // start of the first line
+  let le = val.indexOf('\n', Math.max(ls, e));        // end of the last line
+  if (le === -1) le = val.length;
+  const want = MD_PREFIXES[kind];
+  const text = val.slice(ls, le).split('\n').map(line => {
+    const m = line.match(MD_PREFIX_RE);
+    const cur = m && m[1] ? m[1] : '';
+    const body = line.slice(cur.length);
+    return cur === want ? body : want + body;         // same prefix -> toggle off
+  }).join('\n');
+  descArea.value = val.slice(0, ls) + text + val.slice(le);
+  descArea.setSelectionRange(ls + text.length, ls + text.length);   // caret at the END of the block
+  refreshPreview();
+}
+
+// Insert a link/image template at the selection. The caret ends up collapsed
+// right after the closing parenthesis — no URL preselection, no jump.
+function mdInsert(isImage) {
+  const [s, e] = mdSel();
+  const val = descArea.value;
+  const label = val.slice(s, e) || (isImage ? 'Bild' : 'Text');
+  const URL_PH = 'https://…';
+  const ins = (isImage ? '![' : '[') + label + '](' + URL_PH + ')';
+  descArea.value = val.slice(0, s) + ins + val.slice(e);
+  descArea.setSelectionRange(s + ins.length, s + ins.length);
+  refreshPreview();
+}
+
+// mousedown on a toolbar button must NOT steal focus from the textarea.
+mdToolbar.addEventListener('mousedown', e => {
+  if (e.target.closest('button[data-md]')) e.preventDefault();
+});
+
+mdToolbar.addEventListener('click', e => {
+  const btn = e.target.closest('button[data-md]');
+  if (!btn) return;
+  switch (btn.dataset.md) {
+    case 'h1': case 'h2': case 'h3': case 'ul': case 'task': mdPrefix(btn.dataset.md); break;
+    case 'bold': mdWrap('**', '**', 'Text'); break;
+    case 'italic': mdWrap('*', '*', 'Text'); break;
+    case 'underline': mdWrap('_', '_', 'Text'); break;
+    case 'link': mdInsert(false); break;
+    case 'img': mdInsert(true); break;
+  }
+});
 
 // Render the card's change log into the collapsible history section (newest first).
 // The log texts themselves are stored data and stay in the language they were
@@ -899,16 +1093,14 @@ function renderHistory(card) {
   });
 }
 
-// Registered once; rendering on open and on every keystroke uses the same path.
-form.elements.description.addEventListener('input', refreshPreview);
-
 function openDetail(id) {
   const card = state.cards[id];
   if (!card) return;
   editingId = id;
   setDetailParam(id);
   form.elements.title.value = card.title;
-  form.elements.description.value = card.description || '';
+  descArea.value = card.description || '';
+  refreshPreview();                             // render NOW: the preview must never open empty
   form.elements.priority.value = card.priority || 'none';
   form.elements.due.value = card.due || '';
   form.elements.tags.value = (card.tags || []).join(', ');
@@ -922,20 +1114,31 @@ function openDetail(id) {
   document.getElementById('link-list').hidden = true;
   renderHistory(card);                          // populate the history section
   dialog.showModal();
-  refreshPreview();
+  setDescMode(false);                           // render view first (falls back to edit when empty)
   form.elements.title.focus();
 }
 
 function mdToHtml(src) {
   const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;')
                    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  const inline = s => s
-    .replace(/`([^`]+)`/g, '<code>$1</code>')
-    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*([^*\n]+)\*/g, '<em>$1</em>')
-    .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
-    .replace(/(^|[^A-Za-z0-9_])_([^_\n]+)_(?![A-Za-z0-9_])/g, '$1<u>$2</u>');
-
+  const inline = s => {
+    // Stash rendered <img> AND <a> tags BEFORE the other rules run: their
+    // src/href may contain characters (_/*`...) that bold/italic/underline
+    // would otherwise corrupt (e.g. heise CDN paths like _www-heise-de_).
+    const keep = [];
+    const stash = html => { keep.push(html); return '\x00K' + (keep.length - 1) + '\x00'; };
+    s = s
+      .replace(/!\[([^\]]*)\]\((https?:\/\/[^\s)]+)\)/g,
+        (m, alt, url) => stash('<img src="' + url + '" alt="' + alt + '">'))
+      .replace(/`([^`]+)`/g, '<code>$1</code>')
+      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*([^*\n]+)\*/g, '<em>$1</em>')
+      .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
+        (m, txt, url) => stash('<a href="' + url + '" target="_blank" rel="noopener">' + txt + '</a>'))
+      .replace(/(^|[^A-Za-z0-9_])_([^_\n]+)_(?![A-Za-z0-9_])/g, '$1<u>$2</u>');
+    // Restore the stashed tags – their URLs are now untouchable.
+    return s.replace(/\x00K(\d+)\x00/g, (m, i) => keep[+i]);
+  };
   const lines = esc(String(src || '')).split(/\r?\n/);
   const out = [];
   let list = null, para = [];
@@ -1072,11 +1275,19 @@ document.getElementById('link-confirm').addEventListener('click', () => {
   linkSearch.blur();
 });
 
+// Clicking the render view swaps to the raw textarea — with three exceptions
+// that stay in the render view: task checkboxes (toggle in place), hyperlinks
+// (the browser opens them in a new tab), and images (inert content).
 previewEl.addEventListener('click', e => {
+  if (e.target.closest('a')) return;              // hyperlink: let the browser navigate
+  if (e.target.closest('img')) return;            // image: inert, never enters edit mode
   const li = e.target.closest('li.task');
-  if (!li) return;
-  form.elements.description.value = toggleTaskInSrc(form.elements.description.value, Number(li.dataset.task));
-  refreshPreview();
+  if (li) {
+    descArea.value = toggleTaskInSrc(descArea.value, Number(li.dataset.task));
+    refreshPreview();
+    return;
+  }
+  setDescMode(true);
 });
 
 form.addEventListener('submit', e => {
@@ -1084,7 +1295,7 @@ form.addEventListener('submit', e => {
   if (editingId) {
     let next = Board.updateCard(state, editingId, {
       title: form.elements.title.value,
-      description: form.elements.description.value,
+      description: descArea.value,
       priority: form.elements.priority.value,
       due: form.elements.due.value,
       tags: form.elements.tags.value,
@@ -1101,13 +1312,14 @@ document.getElementById('detail-delete').addEventListener('click', () => {
   if (editingId && confirm(t('confirm-delete-card'))) update(Board.deleteCard(state, editingId));
   dialog.close();
 });
-// Close ONLY on true backdrop clicks (outside the visible box). Clicks on the
-// card's own padding are "inside" and must never discard ongoing edits.
-dialog.addEventListener('click', e => {
-  if (e.target !== dialog) return;
-  const r = dialog.getBoundingClientRect();
-  if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) dialog.close();
-});
+
+// DELIBERATE UX DECISION: the detail dialog does NOT close on clicks — neither
+// on the backdrop nor anywhere inside the dialog. Closing is an explicit user
+// action via the Speichern / Abbrechen / Löschen buttons only, so an errant
+// click outside the textarea can never silently discard edits.
+// (Native Escape still closes the dialog; that is documented in the shortcuts
+// help and intentionally kept.)
+
 dialog.addEventListener('close', () => { editingId = null; setDetailParam(null); });
 
 // ---- Startup: translate the static markup, then render the board ----

@@ -12,6 +12,11 @@ Tvoje osobní Kanban deska. Tvoje data zůstávají na tvém zařízení. Tečka
 
 Tagwerk je soukromá, local-first Kanban deska postavená výhradně z HTML, JavaScriptu a CSS — žádný server, žádné účty, žádný cloud, žádný build. Otevři soubory a funguje. Tvoje úkoly nikdy neopouštějí tvůj počítač — a právě proto Tagwerk není určen pro týmy. Je to tvoje deska, pro tvoji práci.
 
+## Poděkování
+
+- Tagwerk používá písmo **[JetBrains Mono](https://www.jetbrains.com/lp/mono/)** od JetBrains (pod licencí SIL Open Font License).
+- Tento projekt je fork repozitáře [Lewis-P-T/kanban-board](https://github.com/Lewis-P-T/kanban-board) — děkujeme za skvělý základ!
+
 ## Proč Tagwerk?
 
 Většina Kanban nástrojů chce tvá data. Synchronizují je, analyzují, hostují a zpeněžují. Tagwerk zaujímá opačný postoj: není nic k odposlechnutí a nic k úniku, protože vše běží a ukládá se lokálně ve tvém prohlížeči. Soukromí od návrhu, ne politikou.

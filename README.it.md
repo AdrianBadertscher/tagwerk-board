@@ -12,6 +12,11 @@ La tua lavagna Kanban personale. I tuoi dati restano sul tuo dispositivo. Punto.
 
 Tagwerk è una lavagna Kanban privata e local-first, costruita interamente con HTML, JavaScript e CSS — nessun server, nessun account, nessun cloud, nessun build. Apri i file e funziona. Le tue attività non lasciano mai il tuo computer — ed è esattamente per questo che Tagwerk non è pensato per i team. È la tua lavagna, per il tuo lavoro.
 
+## Ringraziamenti
+
+- Tagwerk utilizza il carattere **[JetBrains Mono](https://www.jetbrains.com/lp/mono/)** di JetBrains (licenza SIL Open Font License).
+- Questo progetto è un fork di [Lewis-P-T/kanban-board](https://github.com/Lewis-P-T/kanban-board) — mille grazie per l'ottima base!
+
 ## Perché Tagwerk?
 
 La maggior parte degli strumenti Kanban vuole i tuoi dati. Li sincronizzano, li analizzano, li ospitano e li monetizzano. Tagwerk prende la posizione opposta: non c'è nulla da intercettare e nulla da far trapelare, perché tutto viene eseguito e archiviato localmente nel tuo browser. Privato per progetto, non per politica aziendale.

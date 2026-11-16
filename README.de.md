@@ -12,6 +12,11 @@ Dein persönliches Kanban-Board. Deine Daten bleiben auf deinem Gerät. Punkt.
 
 Tagwerk ist ein privates, local-first Kanban-Board, das vollständig aus HTML, JavaScript und CSS besteht — kein Server, keine Accounts, keine Cloud, kein Build-Step. Dateien öffnen, loslegen. Deine Aufgaben verlassen niemals dein Gerät — deshalb ist Tagwerk bewusst nicht für Teams gebaut. Es ist dein Board, für deine Arbeit.
 
+## Danksagung
+
+- Tagwerk nutzt die Schriftart **[JetBrains Mono](https://www.jetbrains.com/lp/mono/)** von JetBrains (SIL Open Font License).
+- Dieses Projekt ist ein Fork von [Lewis-P-T/kanban-board](https://github.com/Lewis-P-T/kanban-board) — herzlichen Dank für die hervorragende Grundlage!
+
 ## Warum Tagwerk?
 
 Die meisten Kanban-Tools wollen deine Daten. Sie synchronisieren sie, analysieren sie, hosten sie und machen daraus ein Geschäft. Tagwerk nimmt die entgegengesetzte Haltung ein: Es gibt nichts abzufangen und nichts zu leaken, weil alles lokal in deinem Browser läuft und dort gespeichert wird. Privat by Design, nicht by Policy.

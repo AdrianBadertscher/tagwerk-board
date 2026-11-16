@@ -73,8 +73,55 @@
         <span id="detail-col" class="muted"></span>
       </div>
       <label><span data-i18n="detail-title-label">Titel</span> <input name="title" type="text" required maxlength="200"></label>
-      <div id="md-preview" class="md"></div>
-      <label><span data-i18n="detail-description-label">Beschreibung</span> <textarea name="description" rows="4"></textarea></label>
+      <!-- IMPORTANT: the description block is a plain DIV, not a <label>.
+           A <label> forwards clicks to its first "labelable" descendant —
+           with the markdown toolbar present that would be the H1 button,
+           whose synthetic click steals focus and collapses the edit mode
+           right after opening it. A div never forwards clicks. -->
+      <div class="field">
+        <span data-i18n="detail-description-label">Beschreibung</span>
+        <div id="md-toolbar" class="md-toolbar">
+          <span id="md-tools">
+            <button type="button" data-md="h1" title="Überschrift 1">H1</button>
+            <button type="button" data-md="h2" title="Überschrift 2">H2</button>
+            <button type="button" data-md="h3" title="Überschrift 3">H3</button>
+            <span class="sep"></span>
+            <button type="button" data-md="bold" title="Fett">B</button>
+            <button type="button" data-md="italic" title="Kursiv">I</button>
+            <button type="button" data-md="underline" title="Unterstrichen">U</button>
+            <span class="sep"></span>
+            <button type="button" data-md="ul" title="Punktliste">• Liste</button>
+            <button type="button" data-md="task" title="Checkliste">☑</button>
+            <span class="sep"></span>
+            <button type="button" data-md="link" title="Link einfügen">🔗</button>
+            <button type="button" data-md="img" title="Bild einfügen">🖼</button>
+          </span>
+          <button type="button" id="md-copy" hidden
+                  data-i18n="md-copy" data-i18n-title="md-copy-title"
+                  title="Beschreibung als Rich-Text in die Zwischenablage kopieren">📋 Kopieren</button>
+        </div>
+        <!-- Markdown toolbar: edit mode only (visibility is toggled by
+             setDescMode in script.js). Buttons act on the textarea selection. -->
+        <div id="md-toolbar" class="md-toolbar" hidden>
+          <button type="button" data-md="h1" title="Überschrift 1 (#)">H1</button>
+          <button type="button" data-md="h2" title="Überschrift 2 (##)">H2</button>
+          <button type="button" data-md="h3" title="Überschrift 3 (###)">H3</button>
+          <span class="md-sep"></span>
+          <button type="button" data-md="bold" title="Fett (**Text**)"><b>B</b></button>
+          <button type="button" data-md="italic" title="Kursiv (*Text*)"><i>I</i></button>
+          <button type="button" data-md="underline" title="Unterstrichen (_Text_)"><u>U</u></button>
+          <span class="md-sep"></span>
+          <button type="button" data-md="ul" title="Punktliste (- Text)">• Liste</button>
+          <button type="button" data-md="task" title="Checkbox-Liste (- [ ] Text)">☑ Checkliste</button>
+          <span class="md-sep"></span>
+          <button type="button" data-md="link" title="Link ([Text](https://…))">🔗 Link</button>
+          <button type="button" data-md="img" title="Bild (![Beschreibung](https://…))">🖼 Bild</button>
+        </div>
+        <!-- Render/edit swap: the rendered markdown sits exactly where the
+             raw textarea appears, so toggling views does not move the form. -->
+        <div id="md-preview" class="md" tabindex="0" data-i18n-title="md-preview-title" title="Klicken zum Bearbeiten"></div>
+        <textarea name="description" rows="4" hidden data-i18n-aria="detail-description-label" aria-label="Beschreibung"></textarea>
+      </div>
       <div class="row">
         <label><span data-i18n="detail-priority-label">Priorität</span>
           <select name="priority">

@@ -135,6 +135,8 @@ dialog {
 dialog::backdrop { background: rgba(10, 12, 20, .5); }
 #detail-form { display: flex; flex-direction: column; gap: 12px; }
 #detail-form label { display: flex; flex-direction: column; gap: 4px; font-size: .9rem; color: var(--muted); flex: 1; }
+/* Description block: same look as the labels, but a DIV (no label click forwarding). */
+#detail-form .field { display: flex; flex-direction: column; gap: 4px; font-size: .9rem; color: var(--muted); flex: 1; }
 #detail-form input:not([type='checkbox']), #detail-form textarea, #detail-form select {
   font: inherit; color: var(--text); background: var(--bg);
   border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px;
@@ -149,6 +151,16 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
 button.danger { color: var(--danger); border-color: var(--danger); padding: 6px 14px; }
 #detail-cancel { padding: 6px 14px; }
 
+/* ---- Markdown toolbar (edit mode only) ---- */
+
+/* Formatting buttons above the description textarea; visibility is toggled by
+   script.js (setDescMode). mousedown is prevented there so the textarea keeps
+   focus and the text selection. */
+.md-toolbar { display: flex; flex-wrap: wrap; gap: 4px; }
+.md-toolbar button { padding: 2px 8px; font-size: .85rem; min-width: 30px; }
+.md-toolbar button:hover { border-color: var(--accent); }
+.md-sep { width: 1px; height: 20px; background: var(--border); margin: 3px 4px; }
+
 /* ---- Rendered markdown preview ---- */
 
 .md { background: var(--bg); border: 1px dashed var(--border); border-radius: 6px; padding: 10px; font-size: .9rem; overflow-wrap: anywhere; }
@@ -158,6 +170,8 @@ button.danger { color: var(--danger); border-color: var(--danger); padding: 6px 
 .md ul, .md ol { margin: 0; padding-left: 20px; }
 .md code { background: var(--panel); border-radius: 3px; padding: 0 4px; font-size: .85em; }
 .md a { color: var(--accent); }
+/* Rendered images: stay inside the preview, shrink gracefully. */
+.md img { max-width: 100%; border-radius: 6px; margin: 4px 0; }
 .md h3, .md h4, .md h5 { margin: 10px 0 4px; line-height: 1.2; }
 .md h3 { font-size: 1.15rem; } .md h4 { font-size: 1rem; } .md h5 { font-size: .9rem; }
 .md u { text-decoration: underline; text-decoration-thickness: 1px; }
@@ -275,3 +289,21 @@ header, .filters { position: relative; z-index: 3; }
 .log li { display: flex; gap: 10px; align-items: baseline; background: var(--bg);
   border: 1px solid var(--border); border-radius: 6px; padding: 4px 8px; overflow-wrap: anywhere; }
 .log-time { color: var(--muted); white-space: nowrap; }
+
+/* Preview matches the textarea's minimum height (see #detail-form textarea). */
+#md-preview { min-height: 450px; }
+/* Ghosted toolbar keeps its layout space in render mode, so switching
+   between render and edit never changes the block's total height. */
+#md-toolbar.ghosted { visibility: hidden; pointer-events: none; }
+.field-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+#md-copy { font-size: .8rem; padding: 2px 8px; }
+
+/* Ghosted elements keep their layout space but turn invisible. */
+.ghosted { visibility: hidden; pointer-events: none; }
+/* Copy button sits at the far right of the toolbar row. */
+#md-copy { margin-left: auto; }
+
+/* Toolbar (incl. copy button) never takes part in text selection. */
+#md-toolbar, #md-toolbar button { user-select: none; }
+/* Rendered images fit inside the preview box. */
+.md img { max-width: 100%; height: auto; border-radius: 4px; }

@@ -12,6 +12,11 @@ Your personal Kanban board. Your data stays on your device. Period.
 
 Tagwerk is a private, local-first Kanban board built entirely with HTML, JavaScript, and CSS — no server, no accounts, no cloud, no build step. Open the files, and it works. Your tasks never leave your machine, which is exactly why it's not built for teams. It's your board, for your work.
 
+## Acknowledgments
+
+- Tagwerk uses the **[JetBrains Mono](https://www.jetbrains.com/lp/mono/)** typeface by JetBrains (SIL Open Font License).
+- This project is a fork of [Lewis-P-T/kanban-board](https://github.com/Lewis-P-T/kanban-board) — many thanks for the excellent foundation!
+
 ## Why Tagwerk?
 
 Most Kanban tools want your data. They sync it, analyze it, host it, and monetize it. Tagwerk takes the opposite stance: there is nothing to intercept and nothing to leak, because everything runs and is stored locally in your browser. Private by design, not by policy.

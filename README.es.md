@@ -12,6 +12,11 @@ Tu tablero Kanban personal. Tus datos se quedan en tu dispositivo. Sin más.
 
 Tagwerk es un tablero Kanban privado y local-first, construido por completo con HTML, JavaScript y CSS — sin servidor, sin cuentas, sin nube, sin paso de compilación. Abre los archivos y funciona. Tus tareas nunca abandonan tu máquina, y precisamente por eso Tagwerk no está hecho para equipos. Es tu tablero, para tu trabajo.
 
+## Agradecimientos
+
+- Tagwerk utiliza la fuente tipográfica **[JetBrains Mono](https://www.jetbrains.com/lp/mono/)** de JetBrains (licencia SIL Open Font License).
+- Este proyecto es un fork de [Lewis-P-T/kanban-board](https://github.com/Lewis-P-T/kanban-board) — ¡muchas gracias por esta excelente base!
+
 ## ¿Por qué Tagwerk?
 
 La mayoría de las herramientas Kanban quieren tus datos. Los sincronizan, analizan, alojan y monetizan. Tagwerk toma la postura contraria: no hay nada que interceptar ni nada que filtrar, porque todo se ejecuta y se guarda localmente en tu navegador. Privado por diseño, no por política.

@@ -110,6 +110,8 @@
     'detail-cancel': 'Abbrechen',
     'detail-save': 'Speichern',
     'detail-in': 'In %s',
+    'md-copy': '📋 Kopieren',
+    'md-copy-title': 'Beschreibung als Rich-Text in die Zwischenablage kopieren',
 
     // Shortcuts dialog
     'shortcuts-heading': 'Tastaturkürzel',
@@ -249,6 +251,8 @@
     'detail-cancel': 'Cancel',
     'detail-save': 'Save',
     'detail-in': 'In %s',
+    'md-copy': '📋 Copy',
+    'md-copy-title': 'Copy the description as rich text to the clipboard',
 
     'shortcuts-heading': 'Keyboard shortcuts',
     'shortcut-focus-search': 'Focus search',
@@ -383,6 +387,8 @@
     'detail-cancel': 'Annuler',
     'detail-save': 'Enregistrer',
     'detail-in': 'Dans %s',
+    'md-copy': '📋 Copier',
+  'md-copy-title': 'Copier la description en texte enrichi dans le presse-papiers',
 
     'shortcuts-heading': 'Raccourcis clavier',
     'shortcut-focus-search': 'Focus recherche',
@@ -517,6 +523,8 @@
     'detail-cancel': 'Annulla',
     'detail-save': 'Salva',
     'detail-in': 'In %s',
+    'md-copy': '📋 Copia',
+    'md-copy-title': "Copia la descrizione come testo formattato negli appunti",
 
     'shortcuts-heading': 'Scorciatoie da tastiera',
     'shortcut-focus-search': 'Focus sulla ricerca',
@@ -651,6 +659,8 @@
     'detail-cancel': 'Anuluj',
     'detail-save': 'Zapisz',
     'detail-in': 'W %s',
+    'md-copy': '📋 Kopiuj',
+    'md-copy-title': 'Skopiuj opis jako tekst sformatowany do schowka',
 
     'shortcuts-heading': 'Skróty klawiszowe',
     'shortcut-focus-search': 'Fokus na wyszukiwanie',
@@ -785,6 +795,8 @@
     'detail-cancel': 'Cancelar',
     'detail-save': 'Guardar',
     'detail-in': 'En %s',
+    'md-copy': '📋 Copiar',
+    'md-copy-title': 'Copiar la descripción como texto enriquecido al portapapeles',
 
     'shortcuts-heading': 'Atajos de teclado',
     'shortcut-focus-search': 'Foco en la búsqueda',
@@ -919,6 +931,8 @@
     'detail-cancel': 'Annuleren',
     'detail-save': 'Opslaan',
     'detail-in': 'In %s',
+    'md-copy': '📋 Kopiëren',
+    'md-copy-title': 'Kopieer de beschrijving als opgemaakte tekst naar het klembord',
 
     'shortcuts-heading': 'Sneltoetsen',
     'shortcut-focus-search': 'Focus op zoeken',
@@ -1053,6 +1067,8 @@
     'detail-cancel': 'Zrušit',
     'detail-save': 'Uložit',
     'detail-in': 'V %s',
+    'md-copy': '📋 Kopírovat',
+    'md-copy-title': 'Zkopírovat popis jako formátovaný text do schránky',
 
     'shortcuts-heading': 'Klávesové zkratky',
     'shortcut-focus-search': 'Zaměřit hledání',
