@@ -26,7 +26,7 @@ Wer allein arbeitet — als Entwickler, Autor, Forscher, Planer — braucht kein
 ## Funktionen
 
 - **Mehrere Boards** — Boards erstellen, umbenennen und löschen; nach Projekten organisieren oder ein Archiv-Board führen
-- **Viestaltige Karten** — Titel, Markdown-formatierte Beschreibung mit Live-Vorschau, Fälligkeitsdatum (mit Wochentagsanzeige), Tags und ein Feld „Betrifft"
+- **Vielseitige Karten** — Titel, Markdown-formatierte Beschreibung mit Live-Vorschau, Fälligkeitsdatum (mit Wochentagsanzeige), Tags und ein Feld „Betrifft"
 - **Prioritäten mit Farbcodes** — jede Karte trägt eine Priorität hoch / mittel / tief, dargestellt als farbiger Streifen am Kartenrand: grün für tief, orange für mittel, rot für hoch. Eine Spalte scannen und sofort erkennen, was zuerst Aufmerksamkeit verdient — und Wochen später exakt dort weitermachen, wo du aufgehört hast
 - **Nachvollziehbare Historie pro Karte** — jede Karte führt ihr eigenes Änderungsprotokoll: was geändert wurde, wann, und von was auf was — Titelbearbeitungen, Prioritätswechsel, verschobene Fälligkeitsdaten, Tag-Updates und Spaltenwechsel („Verschoben: Doing → Done"). Das Protokoll liegt in der Detailansicht der Karte, neueste Einträge zuerst, begrenzt auf die letzten 30 Einträge
 - **Mehrfachauswahl** — mehrere Karten per Checkbox ankreuzen und das ganze Paket mit „Zu Board schieben" auf ein anderes Board verschieben (z. B. dein Archiv oder ein dediziertes Projekt-Board). Frische IDs beim Eingang verhindern Kollisionen; Drag & Drop funktioniert auch, während Filter Karten ausblenden
